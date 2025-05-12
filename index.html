@@ -168,7 +168,215 @@
         </section>
         <section id="reference">
             <h2>參考資料與附錄</h2>
-            <p>互動涵蓋資料檢視、資料清理、特徵工程、模型選擇與結果視覺化等階段。</p>
+        <h3>附錄一：本報告之原始程式碼 (Python)</h3>
+
+        <h4>決策樹：</h4>
+        <pre>
+<code>
+決策樹：
+import pandas as pd
+import chardet
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder, MultiLabelBinarizer
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import classification_report, confusion_matrix
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# ==== Step 1: 自動偵測檔案編碼 ====
+file_path = 'dating_app_behavior_dataset_extended1.csv'
+with open(file_path, 'rb') as f:
+    result = chardet.detect(f.read(10000))
+    encoding = result['encoding']
+    print(f"🔍 偵測到編碼：{encoding}")
+
+# ==== Step 2: 讀取檔案 ====
+df = pd.read_csv(file_path, encoding=encoding)
+print("✅ 檔案讀取成功！")
+
+# ==== Step 3: 清理 education_level 欄位 ====
+print("🎓 原始教育程度分類:")
+print(df['education_level'].unique())
+
+df['education_level'] = df['education_level'].str.replace(r'\?™s', 's', regex=True)
+df['education_level'] = df['education_level'].str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8')
+
+print("✨ 清理後教育程度分類:")
+print(df['education_level'].unique())
+
+# ==== Step 4: 清理 interest_tags 欄位 ====
+df['interest_tags'] = df['interest_tags'].fillna('')
+
+def process_interest_tags(tags):
+    if isinstance(tags, str):
+        return [i.strip() for i in tags.split(',') if i.strip()]
+    elif isinstance(tags, list):
+        return [i.strip() for i in tags if i.strip()]
+    return []
+
+df['interest_tags'] = df['interest_tags'].apply(process_interest_tags)
+
+mlb = MultiLabelBinarizer()
+interest_encoded = pd.DataFrame(mlb.fit_transform(df['interest_tags']), columns=['interest_' + i for i in mlb.classes_])
+df = pd.concat([df, interest_encoded], axis=1)
+df = df.drop('interest_tags', axis=1)
+
+# ==== Step 5: 特徵編碼 ====
+categorical_cols = ['gender', 'sexual_orientation', 'location_type', 'swipe_time_of_day', 'zodiac_sign', 'body_type', 'relationship_intent']
+ordinal_cols = ['income_bracket', 'education_level', 'app_usage_time_label', 'swipe_right_label']
+
+ohe = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
+encoded_categorical = ohe.fit_transform(df[categorical_cols])
+encoded_categorical_df = pd.DataFrame(encoded_categorical, columns=ohe.get_feature_names_out(categorical_cols))
+df = df.drop(categorical_cols, axis=1)
+df = pd.concat([df, encoded_categorical_df], axis=1)
+
+for col in ordinal_cols:
+    le = LabelEncoder()
+    df[col] = le.fit_transform(df[col].astype(str))
+
+# ==== Step 6: 目標變數處理 ====
+le_y = LabelEncoder()
+df['match_outcome'] = le_y.fit_transform(df['match_outcome'])
+X = df.drop(columns=['match_outcome'])
+y = df['match_outcome']
+
+# ==== Step 7: 切分比例 ====
+split_ratios = {
+    "1:9 (test_size=0.1)": 0.1,
+    "2:8 (test_size=0.2)": 0.2,
+    "3:7 (test_size=0.3)": 0.3,
+    "4:6 (test_size=0.4)": 0.4
+}
+
+# ==== Step 8: 模型訓練與評估 ====
+for label, ratio in split_ratios.items():
+    print(f"\n===== 📊 決策樹模型分析：{label} =====")
+    
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=ratio, random_state=42)
+
+    model = DecisionTreeClassifier(max_depth=5, random_state=42)
+    model.fit(X_train, y_train)
+
+    y_pred = model.predict(X_test)
+    target_names = [str(cls) for cls in le_y.classes_]
+    print(classification_report(y_test, y_pred, target_names=target_names))
+
+    # 混淆矩陣
+    plt.figure(figsize=(8, 5))
+    sns.heatmap(confusion_matrix(y_test, y_pred), annot=True, fmt='d', cmap='Blues',
+                xticklabels=le_y.classes_, yticklabels=le_y.classes_)
+    plt.title(f"Confusion Matrix - {label}")
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    plt.show()
+
+    # 決策樹圖
+    plt.figure(figsize=(20, 8))
+    plot_tree(model, feature_names=X.columns, class_names=target_names,
+              filled=True, rounded=True, fontsize=9)
+    plt.title(f"Decision Tree Visualization - {label}")
+    plt.show()
+
+</code>
+        </pre>
+
+        <h4>隨機森林：</h4>
+        <pre>
+<code>
+import pandas as pd
+import chardet
+from sklearn.preprocessing import OneHotEncoder, LabelEncoder, MultiLabelBinarizer
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, confusion_matrix
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# === Step 1: 讀取資料並處理編碼 ===
+file_path = 'dating_app_behavior_dataset_extended1.csv'
+with open(file_path, 'rb') as f:
+    result = chardet.detect(f.read(10000))
+    encoding = result['encoding']
+df = pd.read_csv(file_path, encoding=encoding)
+
+# === Step 2: 清理 education_level ===
+df['education_level'] = df['education_level'].str.replace(r'\?™s', 's', regex=True)
+df['education_level'] = df['education_level'].str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8')
+
+# === Step 3: 清理 interest_tags 並做 One-Hot 編碼 ===
+df['interest_tags'] = df['interest_tags'].fillna('')
+def process_interest_tags(tags):
+    if isinstance(tags, str):
+        return [i.strip() for i in tags.split(',') if i.strip()]
+    elif isinstance(tags, list):
+        return [i.strip() for i in tags if i.strip()]
+    return []
+df['interest_tags'] = df['interest_tags'].apply(process_interest_tags)
+mlb = MultiLabelBinarizer()
+interest_encoded = pd.DataFrame(mlb.fit_transform(df['interest_tags']), columns=['interest_' + i for i in mlb.classes_])
+df = pd.concat([df.drop(columns=['interest_tags']), interest_encoded], axis=1)
+
+# === Step 4: 特徵編碼 ===
+categorical_cols = ['gender', 'sexual_orientation', 'location_type','swipe_time_of_day', 'zodiac_sign', 'body_type', 'relationship_intent']
+ordinal_cols = ['income_bracket', 'education_level', 'app_usage_time_label', 'swipe_right_label']
+df[categorical_cols] = df[categorical_cols].astype(str)
+
+ohe = OneHotEncoder(handle_unknown='ignore', sparse_output=False)
+encoded_categorical = ohe.fit_transform(df[categorical_cols])
+encoded_df = pd.DataFrame(encoded_categorical, columns=ohe.get_feature_names_out(categorical_cols))
+df = pd.concat([df.drop(columns=categorical_cols), encoded_df], axis=1)
+
+for col in ordinal_cols:
+    le = LabelEncoder()
+    df[col] = le.fit_transform(df[col].astype(str))
+
+# === Step 5: 目標變數 Label Encoding ===
+le_y = LabelEncoder()
+df['match_outcome'] = le_y.fit_transform(df['match_outcome'])
+X = df.drop(columns=['match_outcome'])
+y = df['match_outcome']
+
+#資料標準化/正規化
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X) # Now X should only contain numerical features
+
+# === Step 6: 定義切分比例 ===
+split_ratios = {
+    "1:9 (test_size=0.1)": 0.1,
+    "2:8 (test_size=0.2)": 0.2,
+    "3:7 (test_size=0.3)": 0.3,
+    "4:6 (test_size=0.4)": 0.4
+}
+
+# === Step 7: 迴圈訓練與評估模型 ===
+for label, ratio in split_ratios.items():
+    print(f"\n🌲🌲🌲 Random Forest 模型分析：{label} 🌲🌲🌲")
+
+    # 資料切分
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=ratio, random_state=42)
+
+    # 模型訓練
+    rf = RandomForestClassifier(n_estimators=200, max_depth=15, random_state=42)
+    rf.fit(X_train, y_train)
+
+    # 預測與報告
+    y_pred = rf.predict(X_test)
+    print(classification_report(y_test, y_pred, target_names=le_y.classes_))
+
+    # 混淆矩陣視覺化
+    cm = confusion_matrix(y_test, y_pred)
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='YlGnBu',
+                xticklabels=le_y.classes_, yticklabels=le_y.classes_)
+    plt.title(f"🎯 Confusion Matrix - {label}")
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    plt.tight_layout()
+    plt.show()
+
+</code>
         </section>
         <section id="team">
             <h2>製作團隊</h2>
