@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>約會應用程式行為結果預測</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: #0078d7;
+            color: #fff;
+            padding: 10px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        nav {
+            background: #333;
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        nav a:hover, nav a.active {
+            background: #0078d7;
+        }
+
+        main {
+            padding: 20px;
+            display: none;
+        }
+
+        section {
+            display: none;
+        }
+
+        section.active {
+            display: block;
+        }
+
+        section h2 {
+            color: #0078d7;
+        }
+
+        section p, section ul {
+            margin-bottom: 10px;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        ul li {
+            margin-bottom: 5px;
+        }
+
+        ul li ul {
+            margin-left: 20px;
+            list-style-type: circle;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>約會應用程式行為結果預測</h1>
+    </header>
+    <nav>
+        <a href="#" data-target="intro">專案簡介</a>
+        <a href="#" data-target="project">專案介紹</a>
+        <a href="#" data-target="data">數據描述</a>
+        <a href="#" data-target="model">模型選擇與訓練</a>
+        <a href="#" data-target="results">預測結果</a>
+        <a href="#" data-target="insight">組員心得</a>
+        <a href="#" data-target="dialogue">與生成式AI互動的對話歷程</a>
+        <a href="#" data-target="reference">參考資料與附錄</a>
+        <a href="#" data-target="team">製作團隊</a>
+    </nav>
+    <main>
+        <section id="intro">
+            <h2>專案簡介</h2>
+            <p>本專案是一份數據分析分組期中報告。主題是約會應用程式行為結果預測。</p>
+        </section>
+        <section id="project">
+            <h2>專案介紹</h2>
+            <ul>
+                <li><strong>研究背景：</strong>本研究使用某交友應用程式建立的合成資料集，模擬使用者在虛構交友平台上的真實互動行為，資料內容涵蓋使用者基本資料、使用習慣、滑動偏好與配對結果。</li>
+                <li><strong>研究問題：</strong>
+                    <ul>
+                        <li>使用者的個人特質與應用程式使用行為對配對成功率有何影響？</li>
+                        <li>哪些特徵對配對成功與否具有最強的預測力？</li>
+                        <li>是否能基於上述因素建立一個準確預測配對結果的機器學習模型？</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+        <section id="data">
+            <h2>數據描述</h2>
+            <ul>
+                <li><strong>數據集的來源：</strong>資料集來源為 Kaggle。</li>
+                <li><strong>數據集描述：</strong>
+                    <ul>
+                        <li>個人特質: Gender, Age, Zodiac Sign 等。</li>
+                        <li>使用行為: App Usage Time Min, Swipe Right Ratio 等。</li>
+                        <li>配對結果: match_outcome (配對結果)。</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+        <section id="model">
+            <h2>模型選擇與訓練</h2>
+            <ul>
+                <li><strong>採用之模型：</strong>
+                    <ul>
+                        <li>決策樹: 易於理解和視覺化，適合處理混合類型特徵。</li>
+                        <li>隨機森林: 集成學習，準確率高，泛化能力佳。</li>
+                    </ul>
+                </li>
+                <li><strong>訓練集與測試集比例：</strong>
+                    <ul>
+                        <li>1:9, 2:8, 3:7, 4:6。</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+        <section id="results">
+            <h2>預測結果</h2>
+            <ul>
+                <li><strong>模型評估與比較：</strong>
+                    <ul>
+                        <li>決策樹模型準確率約為 10.25%。</li>
+                        <li>隨機森林模型準確率約為 9.75%。</li>
+                    </ul>
+                </li>
+                <li><strong>預測結果分析：</strong>
+                    <ul>
+                        <li>整體準確率低於預期，模型表現接近隨機猜測。</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+        <section id="insight">
+            <h2>組員心得</h2>
+            <ul>
+                <li>王培安: 對約會軟體主題感興趣，嘗試解決模型準確率過低的問題。</li>
+                <li>胡安沂: 資料筆數與複雜度高於課堂練習，嘗試各種方法但無顯著改善。</li>
+            </ul>
+        </section>
+        <section id="dialogue">
+            <h2>與生成式AI互動的對話歷程</h2>
+            <p>互動涵蓋資料檢視、資料清理、特徵工程、模型選擇與結果視覺化等階段。</p>
+        </section>
+        <section id="reference">
+            <h2>參考資料與附錄</h2>
+            <p>互動涵蓋資料檢視、資料清理、特徵工程、模型選擇與結果視覺化等階段。</p>
+        </section>
+        <section id="team">
+            <h2>製作團隊</h2>
+            <ul>
+                <li>組員: B1111026 胡安沂, B1111029 王培安。</li>
+                <li><strong>工作分工：</strong>
+                    <ul>
+                        <li>王培安: 特徵工程、資料清理。</li>
+                        <li>胡安沂: 模型選擇與訓練。</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+    </main>
+    <script>
+        const navLinks = document.querySelectorAll('nav a');
+        const sections = document.querySelectorAll('section');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+
+                // Remove active class from all links
+                navLinks.forEach(nav => nav.classList.remove('active'));
+
+                // Add active class to the clicked link
+                this.classList.add('active');
+
+                // Hide all sections
+                sections.forEach(section => section.classList.remove('active'));
+
+                // Show the targeted section
+                const target = this.getAttribute('data-target');
+                document.getElementById(target).classList.add('active');
+
+                // Show main area
+                document.querySelector('main').style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
